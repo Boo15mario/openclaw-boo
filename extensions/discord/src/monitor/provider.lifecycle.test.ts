@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import type { Client } from "@buape/carbon";
 import type { GatewayPlugin } from "@buape/carbon/gateway";
 import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
 import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
@@ -113,6 +114,11 @@ describe("runDiscordGatewayLifecycle", () => {
       emitter: gateway.emitter,
     };
     const statusSink = vi.fn();
+    const client = {
+      getPlugin: vi.fn((name: string) =>
+        name === "gateway" ? (gateway as unknown as MutableDiscordGateway) : undefined,
+      ),
+    } as unknown as Client;
     const runtime: RuntimeEnv = {
       log: runtimeLog,
       error: runtimeError,
@@ -128,7 +134,7 @@ describe("runDiscordGatewayLifecycle", () => {
       statusSink,
       lifecycleParams: {
         accountId: params?.accountId ?? "default",
-        gateway: gateway as unknown as MutableDiscordGateway,
+        client,
         runtime,
         isDisallowedIntentsError: params?.isDisallowedIntentsError ?? (() => false),
         voiceManager: null,

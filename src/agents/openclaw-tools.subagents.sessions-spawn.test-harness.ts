@@ -13,9 +13,20 @@ import { __testing as subagentRegistryTesting } from "./subagent-registry.js";
 import { __testing as subagentSpawnTesting } from "./subagent-spawn.js";
 
 type SessionsSpawnTestConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
-type SessionsSpawnHookRunner = ReturnType<
-  (typeof import("../plugins/hook-runner-global.js"))["getGlobalHookRunner"]
->;
+type SessionsSpawnHookRunner =
+  | (Partial<
+      NonNullable<
+        ReturnType<(typeof import("../plugins/hook-runner-global.js"))["getGlobalHookRunner"]>
+      >
+    > &
+      Pick<
+        NonNullable<
+          ReturnType<(typeof import("../plugins/hook-runner-global.js"))["getGlobalHookRunner"]>
+        >,
+        "hasHooks" | "runSubagentSpawning" | "runSubagentSpawned" | "runSubagentEnded"
+      >)
+  | null
+  | undefined;
 type CreateSessionsSpawnTool =
   (typeof import("./tools/sessions-spawn-tool.js"))["createSessionsSpawnTool"];
 export type CreateOpenClawToolsOpts = Parameters<CreateSessionsSpawnTool>[0];
@@ -137,7 +148,10 @@ export function setSessionsSpawnAnnounceFlowOverride(next: typeof runSubagentAnn
 export async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
   subagentSpawnTesting.setDepsForTest({
     callGateway: (optsUnknown) => hoisted.callGatewayMock(optsUnknown),
-    getGlobalHookRunner: () => hoisted.state.hookRunnerOverride,
+    getGlobalHookRunner: () =>
+      (hoisted.state.hookRunnerOverride ?? null) as ReturnType<
+        (typeof import("../plugins/hook-runner-global.js"))["getGlobalHookRunner"]
+      >,
     loadConfig: () => hoisted.state.configOverride,
     updateSessionStore: async (_storePath, mutator) => mutator({}),
   });

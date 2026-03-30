@@ -144,10 +144,10 @@ async function updateSubagentSessionStore(
   return await subagentSpawnDeps.updateSessionStore(storePath, mutator);
 }
 
-async function callSubagentGateway(
+async function callSubagentGateway<T = Record<string, unknown>>(
   params: Parameters<typeof callGateway>[0],
-): Promise<Awaited<ReturnType<typeof callGateway>>> {
-  return await subagentSpawnDeps.callGateway(params);
+): Promise<T> {
+  return (await subagentSpawnDeps.callGateway(params)) as T;
 }
 
 function loadSubagentConfig() {
