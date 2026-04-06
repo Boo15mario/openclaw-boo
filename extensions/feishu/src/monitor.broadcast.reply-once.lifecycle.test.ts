@@ -13,7 +13,7 @@ import {
   runFeishuLifecycleSequence,
   setFeishuLifecycleStateDir,
   setupFeishuLifecycleHandler,
-} from "./test-support/lifecycle.js";
+} from "./test-support/lifecycle-test-support.js";
 import type { FeishuConfig, ResolvedFeishuAccount } from "./types.js";
 
 const {
@@ -23,7 +23,6 @@ const {
   finalizeInboundContextMock,
   resolveAgentRouteMock,
   resolveBoundConversationMock,
-  sendMessageFeishuMock,
   withReplyDispatcherMock,
 } = getFeishuLifecycleTestMocks();
 
