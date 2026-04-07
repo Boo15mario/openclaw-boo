@@ -1,4 +1,4 @@
-import { normalizeOptionalString } from "../shared/string-coerce.js";
+import { isPlainObject } from "../infra/plain-object.js";
 import { isRecord } from "../utils.js";
 import type {
   ResolvedTalkConfig,
@@ -8,6 +8,14 @@ import type {
 } from "./types.gateway.js";
 import type { OpenClawConfig } from "./types.js";
 import { coerceSecretRef } from "./types.secrets.js";
+
+function normalizeString(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
 
 function normalizeTalkSecretInput(value: unknown): TalkProviderConfig["apiKey"] | undefined {
   if (typeof value === "string") {
@@ -22,22 +30,6 @@ function normalizeSilenceTimeoutMs(value: unknown): number | undefined {
     return undefined;
   }
   return value;
-}
-
-function buildLegacyTalkProviderCompat(
-  value: Record<string, unknown>,
-): TalkProviderConfig | undefined {
-  const provider: TalkProviderConfig = {};
-  for (const key of ["voiceId", "voiceAliases", "modelId", "outputFormat"] as const) {
-    if (value[key] !== undefined) {
-      provider[key] = value[key];
-    }
-  }
-  const apiKey = normalizeTalkSecretInput(value.apiKey);
-  if (apiKey !== undefined) {
-    provider.apiKey = apiKey;
-  }
-  return Object.keys(provider).length > 0 ? provider : undefined;
 }
 
 function normalizeTalkProviderConfig(value: unknown): TalkProviderConfig | undefined {
@@ -69,7 +61,7 @@ function normalizeTalkProviders(value: unknown): Record<string, TalkProviderConf
   }
   const providers: Record<string, TalkProviderConfig> = {};
   for (const [rawProviderId, providerConfig] of Object.entries(value)) {
-    const providerId = normalizeOptionalString(rawProviderId);
+    const providerId = normalizeString(rawProviderId);
     if (!providerId) {
       continue;
     }
@@ -86,7 +78,7 @@ function normalizeTalkProviders(value: unknown): Record<string, TalkProviderConf
 }
 
 function activeProviderFromTalk(talk: TalkConfig): string | undefined {
-  const provider = normalizeOptionalString(talk.provider);
+  const provider = normalizeString(talk.provider);
   const providers = talk.providers;
   if (provider) {
     if (providers && !(provider in providers)) {
@@ -114,7 +106,7 @@ export function normalizeTalkSection(value: TalkConfig | undefined): TalkConfig 
   }
 
   const providers = normalizeTalkProviders(source.providers);
-  const provider = normalizeOptionalString(source.provider);
+  const provider = normalizeString(source.provider);
   if (providers) {
     normalized.providers = providers;
   }
@@ -156,30 +148,27 @@ export function resolveActiveTalkProviderConfig(
 }
 
 export function buildTalkConfigResponse(value: unknown): TalkConfigResponse | undefined {
-  if (!isRecord(value)) {
+  if (!isPlainObject(value)) {
     return undefined;
   }
   const normalized = normalizeTalkSection(value as TalkConfig);
-  const legacyCompat = buildLegacyTalkProviderCompat(value);
-  if (!normalized && !legacyCompat) {
+  if (!normalized) {
     return undefined;
   }
 
   const payload: TalkConfigResponse = {};
-  if (typeof normalized?.interruptOnSpeech === "boolean") {
+  if (typeof normalized.interruptOnSpeech === "boolean") {
     payload.interruptOnSpeech = normalized.interruptOnSpeech;
   }
-  if (typeof normalized?.silenceTimeoutMs === "number") {
+  if (typeof normalized.silenceTimeoutMs === "number") {
     payload.silenceTimeoutMs = normalized.silenceTimeoutMs;
   }
-  if (normalized?.providers && Object.keys(normalized.providers).length > 0) {
+  if (normalized.providers && Object.keys(normalized.providers).length > 0) {
     payload.providers = normalized.providers;
   }
 
-  const resolved =
-    resolveActiveTalkProviderConfig(normalized) ??
-    (legacyCompat ? { provider: "elevenlabs", config: legacyCompat } : undefined);
-  const activeProvider = normalizeOptionalString(normalized?.provider) ?? resolved?.provider;
+  const resolved = resolveActiveTalkProviderConfig(normalized);
+  const activeProvider = normalizeString(normalized.provider) ?? resolved?.provider;
   if (activeProvider) {
     payload.provider = activeProvider;
   }

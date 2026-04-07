@@ -6,7 +6,6 @@ import { isSilentReplyText, SILENT_REPLY_TOKEN } from "../auto-reply/tokens.js";
 import { emitAgentEvent } from "../infra/agent-events.js";
 import { createInlineCodeState } from "../markdown/code-spans.js";
 import { resolveAssistantMessagePhase } from "../shared/chat-message-content.js";
-import { normalizeOptionalString } from "../shared/string-coerce.js";
 import {
   isMessagingToolDuplicateNormalized,
   normalizeTextForComparison,
@@ -76,8 +75,8 @@ function isTranscriptOnlyOpenClawAssistantMessage(message: AgentMessage | undefi
   if (!message || message.role !== "assistant") {
     return false;
   }
-  const provider = normalizeOptionalString(message.provider) ?? "";
-  const model = normalizeOptionalString(message.model) ?? "";
+  const provider = typeof message.provider === "string" ? message.provider.trim() : "";
+  const model = typeof message.model === "string" ? message.model.trim() : "";
   return provider === "openclaw" && (model === "delivery-mirror" || model === "gateway-injected");
 }
 
@@ -205,11 +204,9 @@ export function handleMessageUpdate(
 
   ctx.noteLastAssistant(msg);
   const suppressVisibleAssistantOutput = shouldSuppressAssistantVisibleOutput(msg);
-  if (suppressVisibleAssistantOutput) {
+  if (ctx.state.deterministicApprovalPromptSent) {
     return;
   }
-  const suppressDeterministicApprovalOutput =
-    ctx.state.deterministicApprovalPromptPending || ctx.state.deterministicApprovalPromptSent;
 
   const assistantEvent = evt.assistantMessageEvent;
   const assistantRecord =
@@ -264,6 +261,10 @@ export function handleMessageUpdate(
     delta,
     content,
   });
+
+  if (suppressVisibleAssistantOutput) {
+    return;
+  }
 
   let chunk = "";
   if (evtType === "text_delta") {
@@ -378,7 +379,7 @@ export function handleMessageUpdate(
     ctx.state.lastStreamedAssistant = next;
     ctx.state.lastStreamedAssistantCleaned = cleanedText;
 
-    if (ctx.params.silentExpected || suppressDeterministicApprovalOutput) {
+    if (ctx.params.silentExpected) {
       shouldEmit = false;
     }
 
@@ -407,7 +408,6 @@ export function handleMessageUpdate(
 
   if (
     !ctx.params.silentExpected &&
-    !suppressDeterministicApprovalOutput &&
     ctx.params.onBlockReply &&
     ctx.blockChunking &&
     ctx.state.blockReplyBreak === "text_end"
@@ -417,7 +417,6 @@ export function handleMessageUpdate(
 
   if (
     !ctx.params.silentExpected &&
-    !suppressDeterministicApprovalOutput &&
     evtType === "text_end" &&
     ctx.state.blockReplyBreak === "text_end"
   ) {
@@ -441,11 +440,9 @@ export function handleMessageEnd(
 
   const assistantMessage = msg;
   const suppressVisibleAssistantOutput = shouldSuppressAssistantVisibleOutput(assistantMessage);
-  const suppressDeterministicApprovalOutput =
-    ctx.state.deterministicApprovalPromptPending || ctx.state.deterministicApprovalPromptSent;
   ctx.noteLastAssistant(assistantMessage);
   ctx.recordAssistantUsage((assistantMessage as { usage?: unknown }).usage);
-  if (suppressVisibleAssistantOutput) {
+  if (ctx.state.deterministicApprovalPromptSent) {
     return;
   }
   promoteThinkingTagsToBlocks(assistantMessage);
@@ -487,6 +484,12 @@ export function handleMessageEnd(
     ctx.state.reasoningStreamOpen = false;
   };
 
+  if (suppressVisibleAssistantOutput) {
+    emitReasoningEnd(ctx);
+    finalizeMessageEnd();
+    return;
+  }
+
   const previousStreamedText = ctx.state.lastStreamedAssistantCleaned ?? "";
   const shouldReplaceFinalStream = Boolean(
     previousStreamedText && cleanedText && !cleanedText.startsWith(previousStreamedText),
@@ -500,7 +503,6 @@ export function handleMessageEnd(
 
   if (
     !ctx.params.silentExpected &&
-    !suppressDeterministicApprovalOutput &&
     (cleanedText || hasMedia) &&
     (!ctx.state.emittedAssistantUpdate ||
       shouldReplaceFinalStream ||
@@ -540,7 +542,6 @@ export function handleMessageEnd(
   const onBlockReply = ctx.params.onBlockReply;
   const shouldEmitReasoning = Boolean(
     !ctx.params.silentExpected &&
-    !suppressDeterministicApprovalOutput &&
     ctx.state.includeReasoning &&
     formattedReasoning &&
     onBlockReply &&
@@ -593,7 +594,6 @@ export function handleMessageEnd(
 
   if (
     !ctx.params.silentExpected &&
-    !suppressDeterministicApprovalOutput &&
     text &&
     onBlockReply &&
     (ctx.state.blockReplyBreak === "message_end" ||
