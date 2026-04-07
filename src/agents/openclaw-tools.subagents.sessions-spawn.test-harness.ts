@@ -1,32 +1,14 @@
 import { vi, type Mock } from "vitest";
-import {
-  __testing as subagentAnnounceDeliveryTesting,
-  resolveRequesterStoreKey,
-} from "./subagent-announce-delivery.js";
-import { __testing as subagentAnnounceOutputTesting } from "./subagent-announce-output.js";
-import {
-  __testing as subagentAnnounceTesting,
-  captureSubagentCompletionReply,
-  runSubagentAnnounceFlow,
-} from "./subagent-announce.js";
+import type { SubagentLifecycleHookRunner } from "../plugins/hooks.js";
 import { __testing as subagentRegistryTesting } from "./subagent-registry.js";
+import { resolveRequesterStoreKey } from "./subagent-requester-store-key.js";
 import { __testing as subagentSpawnTesting } from "./subagent-spawn.js";
 
 type SessionsSpawnTestConfig = ReturnType<(typeof import("../config/config.js"))["loadConfig"]>;
-type SessionsSpawnHookRunner =
-  | (Partial<
-      NonNullable<
-        ReturnType<(typeof import("../plugins/hook-runner-global.js"))["getGlobalHookRunner"]>
-      >
-    > &
-      Pick<
-        NonNullable<
-          ReturnType<(typeof import("../plugins/hook-runner-global.js"))["getGlobalHookRunner"]>
-        >,
-        "hasHooks" | "runSubagentSpawning" | "runSubagentSpawned" | "runSubagentEnded"
-      >)
-  | null
-  | undefined;
+type SessionsSpawnHookRunner = SubagentLifecycleHookRunner | null;
+type CaptureSubagentCompletionReply =
+  (typeof import("./subagent-announce.js"))["captureSubagentCompletionReply"];
+type RunSubagentAnnounceFlow = (typeof import("./subagent-announce.js"))["runSubagentAnnounceFlow"];
 type CreateSessionsSpawnTool =
   (typeof import("./tools/sessions-spawn-tool.js"))["createSessionsSpawnTool"];
 export type CreateOpenClawToolsOpts = Parameters<CreateSessionsSpawnTool>[0];
@@ -51,7 +33,7 @@ const hoisted = vi.hoisted(() => {
     },
   } as SessionsSpawnTestConfig;
   let configOverride = defaultConfigOverride;
-  const defaultRunSubagentAnnounceFlow: typeof runSubagentAnnounceFlow = async (params) => {
+  const defaultRunSubagentAnnounceFlow: RunSubagentAnnounceFlow = async (params) => {
     const statusLabel =
       params.outcome?.status === "timeout" ? "timed out" : "completed successfully";
     const requesterSessionKey = resolveRequesterStoreKey(
@@ -91,6 +73,8 @@ const hoisted = vi.hoisted(() => {
 
     return true;
   };
+  const defaultCaptureSubagentCompletionReply: CaptureSubagentCompletionReply = async () =>
+    undefined;
   const state = {
     get configOverride() {
       return configOverride;
@@ -98,12 +82,16 @@ const hoisted = vi.hoisted(() => {
     set configOverride(next: SessionsSpawnTestConfig) {
       configOverride = next;
     },
-    hookRunnerOverride: undefined as SessionsSpawnHookRunner,
+    hookRunnerOverride: null as SessionsSpawnHookRunner,
+    defaultCaptureSubagentCompletionReply,
+    captureSubagentCompletionReplyOverride: defaultCaptureSubagentCompletionReply,
     defaultRunSubagentAnnounceFlow,
     runSubagentAnnounceFlowOverride: defaultRunSubagentAnnounceFlow,
   };
   return { callGatewayMock, defaultConfigOverride, state };
 });
+
+let cachedCreateSessionsSpawnTool: CreateSessionsSpawnTool | null = null;
 
 export function getCallGatewayMock(): Mock {
   return hoisted.callGatewayMock;
@@ -134,47 +122,36 @@ export function resetSessionsSpawnAnnounceFlowOverride(): void {
 }
 
 export function resetSessionsSpawnHookRunnerOverride(): void {
-  hoisted.state.hookRunnerOverride = undefined;
+  hoisted.state.hookRunnerOverride = null;
 }
 
 export function setSessionsSpawnHookRunnerOverride(next: SessionsSpawnHookRunner): void {
   hoisted.state.hookRunnerOverride = next;
 }
 
-export function setSessionsSpawnAnnounceFlowOverride(next: typeof runSubagentAnnounceFlow): void {
+export function setSessionsSpawnAnnounceFlowOverride(next: RunSubagentAnnounceFlow): void {
   hoisted.state.runSubagentAnnounceFlowOverride = next;
 }
 
 export async function getSessionsSpawnTool(opts: CreateOpenClawToolsOpts) {
   subagentSpawnTesting.setDepsForTest({
     callGateway: (optsUnknown) => hoisted.callGatewayMock(optsUnknown),
-    getGlobalHookRunner: () =>
-      (hoisted.state.hookRunnerOverride ?? null) as ReturnType<
-        (typeof import("../plugins/hook-runner-global.js"))["getGlobalHookRunner"]
-      >,
+    getGlobalHookRunner: () => hoisted.state.hookRunnerOverride,
     loadConfig: () => hoisted.state.configOverride,
     updateSessionStore: async (_storePath, mutator) => mutator({}),
-  });
-  subagentAnnounceTesting.setDepsForTest({
-    callGateway: (optsUnknown) => hoisted.callGatewayMock(optsUnknown),
-    loadConfig: () => hoisted.state.configOverride,
-  });
-  subagentAnnounceDeliveryTesting.setDepsForTest({
-    callGateway: (optsUnknown) => hoisted.callGatewayMock(optsUnknown),
-    loadConfig: () => hoisted.state.configOverride,
-  });
-  subagentAnnounceOutputTesting.setDepsForTest({
-    callGateway: (optsUnknown) => hoisted.callGatewayMock(optsUnknown),
-    loadConfig: () => hoisted.state.configOverride,
   });
   subagentRegistryTesting.setDepsForTest({
     callGateway: (optsUnknown) => hoisted.callGatewayMock(optsUnknown),
     loadConfig: () => hoisted.state.configOverride,
-    captureSubagentCompletionReply,
+    captureSubagentCompletionReply: (sessionKey) =>
+      hoisted.state.captureSubagentCompletionReplyOverride(sessionKey),
     runSubagentAnnounceFlow: (params) => hoisted.state.runSubagentAnnounceFlowOverride(params),
   });
-  const { createSessionsSpawnTool } = await import("./tools/sessions-spawn-tool.js");
-  return createSessionsSpawnTool(opts);
+  if (!cachedCreateSessionsSpawnTool) {
+    ({ createSessionsSpawnTool: cachedCreateSessionsSpawnTool } =
+      await import("./tools/sessions-spawn-tool.js"));
+  }
+  return cachedCreateSessionsSpawnTool(opts);
 }
 
 export function setupSessionsSpawnGatewayMock(setupOpts: SessionsSpawnGatewayMockOptions): {
@@ -274,8 +251,8 @@ vi.mock("../../gateway/call.js", () => ({
   callGateway: (opts: unknown) => hoisted.callGatewayMock(opts),
 }));
 
-vi.mock("../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
+vi.mock("../config/config.js", async () => {
+  const actual = await vi.importActual<typeof import("../config/config.js")>("../config/config.js");
   return {
     ...actual,
     loadConfig: () => hoisted.state.configOverride,
@@ -284,8 +261,8 @@ vi.mock("../config/config.js", async (importOriginal) => {
 });
 
 // Same module, different specifier (used by tools under src/agents/tools/*).
-vi.mock("../../config/config.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../config/config.js")>();
+vi.mock("../../config/config.js", async () => {
+  const actual = await vi.importActual<typeof import("../config/config.js")>("../config/config.js");
   return {
     ...actual,
     loadConfig: () => hoisted.state.configOverride,
