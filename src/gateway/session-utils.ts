@@ -11,6 +11,7 @@ import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agen
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
 import {
   inferUniqueProviderFromConfiguredModels,
+  normalizeStoredOverrideModel,
   parseModelRef,
   resolveConfiguredModelRef,
   resolveDefaultModelForAgent,
@@ -1052,12 +1053,17 @@ export function resolveSessionModelRef(
         defaultModel: DEFAULT_MODEL,
       });
 
+  const normalizedOverride = normalizeStoredOverrideModel({
+    providerOverride: entry?.providerOverride,
+    modelOverride: entry?.modelOverride,
+  });
+
   const persisted = resolvePersistedSelectedModelRef({
     defaultProvider: resolved.provider || DEFAULT_PROVIDER,
     runtimeProvider: entry?.modelProvider,
     runtimeModel: entry?.model,
-    overrideProvider: entry?.providerOverride,
-    overrideModel: entry?.modelOverride,
+    overrideProvider: normalizedOverride.providerOverride,
+    overrideModel: normalizedOverride.modelOverride,
   });
   if (persisted) {
     return persisted;
@@ -1225,7 +1231,8 @@ export function buildGatewaySessionRow(params: {
   const sessionAgentId = normalizeAgentId(parsedAgent?.agentId ?? resolveDefaultAgentId(cfg));
   const subagentRun = getSessionDisplaySubagentRunByChildSessionKey(key);
   const subagentOwner =
-    subagentRun?.controllerSessionKey?.trim() || subagentRun?.requesterSessionKey?.trim();
+    normalizeOptionalString(subagentRun?.controllerSessionKey) ||
+    normalizeOptionalString(subagentRun?.requesterSessionKey);
   const subagentStatus = subagentRun ? resolveSubagentSessionStatus(subagentRun) : undefined;
   const subagentStartedAt = subagentRun ? getSubagentSessionStartedAt(subagentRun) : undefined;
   const subagentEndedAt = subagentRun ? subagentRun.endedAt : undefined;
@@ -1454,7 +1461,8 @@ export function listSessionsFromStore(params: {
       const latest = getSessionDisplaySubagentRunByChildSessionKey(key);
       if (latest) {
         const latestControllerSessionKey =
-          latest.controllerSessionKey?.trim() || latest.requesterSessionKey?.trim();
+          normalizeOptionalString(latest.controllerSessionKey) ||
+          normalizeOptionalString(latest.requesterSessionKey);
         return latestControllerSessionKey === spawnedBy;
       }
       return entry?.spawnedBy === spawnedBy || entry?.parentSessionKey === spawnedBy;
