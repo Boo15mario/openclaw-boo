@@ -5,156 +5,156 @@
   "type": "module",
   "exports": {
     "./account-id": {
-      "types": "./dist/src/plugin-sdk/account-id.d.ts",
-      "default": "./src/account-id.ts"
+      "types": "./dist/plugin-sdk/account-id.d.ts",
+      "default": "./dist/plugin-sdk/account-id.js"
     },
     "./acp-runtime": {
-      "types": "./dist/src/plugin-sdk/acp-runtime.d.ts",
-      "default": "./src/acp-runtime.ts"
+      "types": "./dist/plugin-sdk/acp-runtime.d.ts",
+      "default": "./dist/plugin-sdk/acp-runtime.js"
     },
     "./browser-config-runtime": {
-      "types": "./dist/src/plugin-sdk/browser-config-runtime.d.ts",
-      "default": "./src/browser-config-runtime.ts"
+      "types": "./dist/plugin-sdk/browser-config-runtime.d.ts",
+      "default": "./dist/plugin-sdk/browser-config-runtime.js"
     },
     "./core": {
-      "types": "./dist/src/plugin-sdk/core.d.ts",
-      "default": "./src/core.ts"
+      "types": "./dist/plugin-sdk/core.d.ts",
+      "default": "./dist/plugin-sdk/core.js"
     },
     "./browser-node-runtime": {
-      "types": "./dist/src/plugin-sdk/browser-node-runtime.d.ts",
-      "default": "./src/browser-node-runtime.ts"
+      "types": "./dist/plugin-sdk/browser-node-runtime.d.ts",
+      "default": "./dist/plugin-sdk/browser-node-runtime.js"
     },
     "./config-runtime": {
-      "types": "./dist/src/plugin-sdk/config-runtime.d.ts",
-      "default": "./src/config-runtime.ts"
+      "types": "./dist/plugin-sdk/config-runtime.d.ts",
+      "default": "./dist/plugin-sdk/config-runtime.js"
     },
     "./browser-setup-tools": {
-      "types": "./dist/src/plugin-sdk/browser-setup-tools.d.ts",
-      "default": "./src/browser-setup-tools.ts"
+      "types": "./dist/plugin-sdk/browser-setup-tools.d.ts",
+      "default": "./dist/plugin-sdk/browser-setup-tools.js"
     },
     "./browser-security-runtime": {
-      "types": "./dist/src/plugin-sdk/browser-security-runtime.d.ts",
-      "default": "./src/browser-security-runtime.ts"
+      "types": "./dist/plugin-sdk/browser-security-runtime.d.ts",
+      "default": "./dist/plugin-sdk/browser-security-runtime.js"
     },
     "./channel-secret-runtime": {
-      "types": "./dist/src/plugin-sdk/channel-secret-runtime.d.ts",
-      "default": "./src/channel-secret-runtime.ts"
+      "types": "./dist/plugin-sdk/channel-secret-runtime.d.ts",
+      "default": "./dist/plugin-sdk/channel-secret-runtime.js"
     },
     "./channel-streaming": {
-      "types": "./dist/src/plugin-sdk/channel-streaming.d.ts",
-      "default": "./src/channel-streaming.ts"
+      "types": "./dist/plugin-sdk/channel-streaming.d.ts",
+      "default": "./dist/plugin-sdk/channel-streaming.js"
     },
     "./cli-runtime": {
-      "types": "./dist/src/plugin-sdk/cli-runtime.d.ts",
-      "default": "./src/cli-runtime.ts"
+      "types": "./dist/plugin-sdk/cli-runtime.d.ts",
+      "default": "./dist/plugin-sdk/cli-runtime.js"
     },
     "./error-runtime": {
-      "types": "./dist/src/plugin-sdk/error-runtime.d.ts",
-      "default": "./src/error-runtime.ts"
+      "types": "./dist/plugin-sdk/error-runtime.d.ts",
+      "default": "./dist/plugin-sdk/error-runtime.js"
     },
     "./plugin-entry": {
-      "types": "./dist/src/plugin-sdk/plugin-entry.d.ts",
-      "default": "./src/plugin-entry.ts"
+      "types": "./dist/plugin-sdk/plugin-entry.d.ts",
+      "default": "./dist/plugin-sdk/plugin-entry.js"
     },
     "./plugin-runtime": {
-      "types": "./dist/src/plugin-sdk/plugin-runtime.d.ts",
-      "default": "./src/plugin-runtime.ts"
+      "types": "./dist/plugin-sdk/plugin-runtime.d.ts",
+      "default": "./dist/plugin-sdk/plugin-runtime.js"
     },
     "./provider-auth": {
-      "types": "./dist/src/plugin-sdk/provider-auth.d.ts",
-      "default": "./src/provider-auth.ts"
+      "types": "./dist/plugin-sdk/provider-auth.d.ts",
+      "default": "./dist/plugin-sdk/provider-auth.js"
     },
     "./provider-auth-runtime": {
-      "types": "./dist/src/plugin-sdk/provider-auth-runtime.d.ts",
-      "default": "./src/provider-auth-runtime.ts"
+      "types": "./dist/plugin-sdk/provider-auth-runtime.d.ts",
+      "default": "./dist/plugin-sdk/provider-auth-runtime.js"
     },
     "./provider-env-vars": {
-      "types": "./dist/src/plugin-sdk/provider-env-vars.d.ts",
-      "default": "./src/provider-env-vars.ts"
+      "types": "./dist/plugin-sdk/provider-env-vars.d.ts",
+      "default": "./dist/plugin-sdk/provider-env-vars.js"
     },
     "./provider-entry": {
-      "types": "./dist/src/plugin-sdk/provider-entry.d.ts",
-      "default": "./src/provider-entry.ts"
+      "types": "./dist/plugin-sdk/provider-entry.d.ts",
+      "default": "./dist/plugin-sdk/provider-entry.js"
     },
     "./provider-usage": {
-      "types": "./dist/src/plugin-sdk/provider-usage.d.ts",
-      "default": "./src/provider-usage.ts"
+      "types": "./dist/plugin-sdk/provider-usage.d.ts",
+      "default": "./dist/plugin-sdk/provider-usage.js"
     },
     "./provider-http": {
-      "types": "./dist/src/plugin-sdk/provider-http.d.ts",
-      "default": "./src/provider-http.ts"
+      "types": "./dist/plugin-sdk/provider-http.d.ts",
+      "default": "./dist/plugin-sdk/provider-http.js"
     },
     "./provider-model-types": {
-      "types": "./dist/src/plugin-sdk/provider-model-types.d.ts",
-      "default": "./src/provider-model-types.ts"
+      "types": "./dist/plugin-sdk/provider-model-types.d.ts",
+      "default": "./dist/plugin-sdk/provider-model-types.js"
     },
     "./provider-model-shared": {
-      "types": "./dist/src/plugin-sdk/provider-model-shared.d.ts",
-      "default": "./src/provider-model-shared.ts"
+      "types": "./dist/plugin-sdk/provider-model-shared.d.ts",
+      "default": "./dist/plugin-sdk/provider-model-shared.js"
     },
     "./provider-onboard": {
-      "types": "./dist/src/plugin-sdk/provider-onboard.d.ts",
-      "default": "./src/provider-onboard.ts"
+      "types": "./dist/plugin-sdk/provider-onboard.d.ts",
+      "default": "./dist/plugin-sdk/provider-onboard.js"
     },
     "./provider-stream-shared": {
-      "types": "./dist/src/plugin-sdk/provider-stream-shared.d.ts",
-      "default": "./src/provider-stream-shared.ts"
+      "types": "./dist/plugin-sdk/provider-stream-shared.d.ts",
+      "default": "./dist/plugin-sdk/provider-stream-shared.js"
     },
     "./provider-tools": {
-      "types": "./dist/src/plugin-sdk/provider-tools.d.ts",
-      "default": "./src/provider-tools.ts"
+      "types": "./dist/plugin-sdk/provider-tools.d.ts",
+      "default": "./dist/plugin-sdk/provider-tools.js"
     },
     "./provider-web-search": {
-      "types": "./dist/src/plugin-sdk/provider-web-search.d.ts",
-      "default": "./src/provider-web-search.ts"
+      "types": "./dist/plugin-sdk/provider-web-search.d.ts",
+      "default": "./dist/plugin-sdk/provider-web-search.js"
     },
     "./provider-web-search-contract": {
-      "types": "./dist/src/plugin-sdk/provider-web-search-contract.d.ts",
-      "default": "./src/provider-web-search-contract.ts"
+      "types": "./dist/plugin-sdk/provider-web-search-contract.d.ts",
+      "default": "./dist/plugin-sdk/provider-web-search-contract.js"
     },
     "./provider-web-search-config-contract": {
       "types": "./dist/src/plugin-sdk/provider-web-search-config-contract.d.ts",
       "default": "./src/provider-web-search-config-contract.ts"
     },
     "./runtime-doctor": {
-      "types": "./dist/src/plugin-sdk/runtime-doctor.d.ts",
-      "default": "./src/runtime-doctor.ts"
+      "types": "./dist/plugin-sdk/runtime-doctor.d.ts",
+      "default": "./dist/plugin-sdk/runtime-doctor.js"
     },
     "./runtime-env": {
-      "types": "./dist/src/plugin-sdk/runtime-env.d.ts",
-      "default": "./src/runtime-env.ts"
+      "types": "./dist/plugin-sdk/runtime-env.d.ts",
+      "default": "./dist/plugin-sdk/runtime-env.js"
     },
     "./security-runtime": {
-      "types": "./dist/src/plugin-sdk/security-runtime.d.ts",
-      "default": "./src/security-runtime.ts"
+      "types": "./dist/plugin-sdk/security-runtime.d.ts",
+      "default": "./dist/plugin-sdk/security-runtime.js"
     },
     "./secret-ref-runtime": {
-      "types": "./dist/src/plugin-sdk/secret-ref-runtime.d.ts",
-      "default": "./src/secret-ref-runtime.ts"
+      "types": "./dist/plugin-sdk/secret-ref-runtime.d.ts",
+      "default": "./dist/plugin-sdk/secret-ref-runtime.js"
     },
     "./ssrf-runtime": {
-      "types": "./dist/src/plugin-sdk/ssrf-runtime.d.ts",
-      "default": "./src/ssrf-runtime.ts"
+      "types": "./dist/plugin-sdk/ssrf-runtime.d.ts",
+      "default": "./dist/plugin-sdk/ssrf-runtime.js"
     },
     "./secret-input": {
-      "types": "./dist/src/plugin-sdk/secret-input.d.ts",
-      "default": "./src/secret-input.ts"
+      "types": "./dist/plugin-sdk/secret-input.d.ts",
+      "default": "./dist/plugin-sdk/secret-input.js"
     },
     "./text-runtime": {
-      "types": "./dist/src/plugin-sdk/text-runtime.d.ts",
-      "default": "./src/text-runtime.ts"
+      "types": "./dist/plugin-sdk/text-runtime.d.ts",
+      "default": "./dist/plugin-sdk/text-runtime.js"
     },
     "./testing": {
-      "types": "./dist/src/plugin-sdk/testing.d.ts",
-      "default": "./src/testing.ts"
+      "types": "./dist/plugin-sdk/testing.d.ts",
+      "default": "./dist/plugin-sdk/testing.js"
     },
     "./video-generation": {
-      "types": "./dist/src/plugin-sdk/video-generation.d.ts",
-      "default": "./src/video-generation.ts"
+      "types": "./dist/plugin-sdk/video-generation.d.ts",
+      "default": "./dist/plugin-sdk/video-generation.js"
     },
     "./zod": {
-      "types": "./dist/src/plugin-sdk/zod.d.ts",
-      "default": "./src/zod.ts"
+      "types": "./dist/plugin-sdk/zod.d.ts",
+      "default": "./dist/plugin-sdk/zod.js"
     }
   }
 }

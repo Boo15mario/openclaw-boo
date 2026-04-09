@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const resolveRuntimePluginRegistryMock =
-  vi.fn<typeof import("./loader.js").resolveRuntimePluginRegistry>();
+const resolveRuntimePluginRegistryMock = vi.fn<typeof import("./loader.js").loadOpenClawPlugins>();
 const applyPluginAutoEnableMock =
   vi.fn<typeof import("../config/plugin-auto-enable.js").applyPluginAutoEnable>();
 const getMemoryRuntimeMock = vi.fn<typeof import("./memory-state.js").getMemoryRuntime>();
@@ -21,10 +20,12 @@ vi.mock("../agents/agent-scope.js", () => ({
 }));
 
 vi.mock("./loader.js", () => ({
-  resolveRuntimePluginRegistry: resolveRuntimePluginRegistryMock,
+  loadOpenClawPlugins: resolveRuntimePluginRegistryMock,
 }));
 
+const clearMemoryPluginStateMock = vi.fn();
 vi.mock("./memory-state.js", () => ({
+  clearMemoryPluginState: clearMemoryPluginStateMock,
   getMemoryRuntime: () => getMemoryRuntimeMock(),
 }));
 
@@ -87,6 +88,7 @@ function setAutoEnabledMemoryRuntime() {
 function expectNoMemoryRuntimeBootstrap() {
   expect(applyPluginAutoEnableMock).not.toHaveBeenCalled();
   expect(resolveRuntimePluginRegistryMock).not.toHaveBeenCalled();
+  expect(clearMemoryPluginStateMock).not.toHaveBeenCalled();
 }
 
 async function expectAutoEnabledMemoryRuntimeCase(params: {
@@ -124,6 +126,7 @@ describe("memory runtime auto-enable loading", () => {
       closeActiveMemorySearchManagers,
     } = await import("./memory-runtime.js"));
     resolveRuntimePluginRegistryMock.mockReset();
+    clearMemoryPluginStateMock.mockReset();
     applyPluginAutoEnableMock.mockReset();
     getMemoryRuntimeMock.mockReset();
     resolveAgentWorkspaceDirMock.mockReset();

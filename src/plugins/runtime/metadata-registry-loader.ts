@@ -15,6 +15,8 @@ export function loadPluginMetadataRegistrySnapshot(options?: {
 
   return loadOpenClawPlugins(
     buildPluginRuntimeLoadOptions(context, {
+      config: context.config,
+      activationSourceConfig: options?.activationSourceConfig ?? context.rawConfig,
       throwOnLoadError: true,
       cache: false,
       activate: false,

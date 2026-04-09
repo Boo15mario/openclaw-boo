@@ -1,6 +1,6 @@
 import type { OpenClawConfig } from "../config/config.js";
-import { resolveRuntimePluginRegistry } from "./loader.js";
-import { getMemoryRuntime } from "./memory-state.js";
+import { loadOpenClawPlugins } from "./loader.js";
+import { clearMemoryPluginState, getMemoryRuntime } from "./memory-state.js";
 import {
   buildPluginRuntimeLoadOptions,
   resolvePluginRuntimeLoadContext,
@@ -11,8 +11,17 @@ function ensureMemoryRuntime(cfg?: OpenClawConfig) {
   if (current || !cfg) {
     return current;
   }
-  resolveRuntimePluginRegistry(
-    buildPluginRuntimeLoadOptions(resolvePluginRuntimeLoadContext({ config: cfg })),
+  const context = resolvePluginRuntimeLoadContext({
+    config: cfg,
+    activationSourceConfig: cfg,
+  });
+  clearMemoryPluginState();
+  loadOpenClawPlugins(
+    buildPluginRuntimeLoadOptions(context, {
+      config: context.config,
+      activationSourceConfig: context.activationSourceConfig,
+      cache: false,
+    }),
   );
   return getMemoryRuntime();
 }
